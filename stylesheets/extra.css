@@ -1,0 +1,160 @@
+
+/* Fullscreen Mode Styles */
+body.fullscreen-mode .md-header {
+    height: 0;
+    background: transparent !important;
+    box-shadow: none !important;    
+}
+
+body.fullscreen-mode .md-main__inner {
+    padding: 0 !important;
+    margin: 0 !important;
+    margin-right: 1rem !important;
+}
+
+/* Hide header internals but keep toggle container accessible */
+body.fullscreen-mode .md-header__inner {
+    visibility: hidden;    
+}
+
+/* Position and force visibility of the toggle */
+body.fullscreen-mode .md-header__option {
+    visibility: visible !important;
+    display: block !important;
+    position: fixed;
+    top: 15px;
+    right: 15px;
+    z-index: 1000;
+}
+
+body.fullscreen-mode .md-footer {
+    display: none !important;
+}
+
+/* FIX: Ensure icon color is visible in both modes */
+/* Light Mode Icon Color */
+body.fullscreen-mode[data-md-color-scheme="default"] .md-header__option .md-icon {
+    color: #333 !important; /* Dark charcoal for visibility on white */
+}
+
+/* Dark Mode Icon Color */
+body.fullscreen-mode[data-md-color-scheme="slate"] .md-header__option .md-icon {
+    color: #fff !important; /* White for visibility on dark */
+}
+
+/* Layout adjustments */
+body.fullscreen-mode .md-main {
+    margin-top: 0 !important;
+}
+
+body.fullscreen-mode .md-sidebar--primary {
+    display: none;
+}
+
+body.fullscreen-mode .md-content {
+    margin-left: 0 !important;
+}
+
+body .md-content article h1:first-child {
+    display: none !important;
+}
+
+/* --- My custom quiz css --- */
+
+.quiz label {
+    display: inline-block;
+    vertical-align:top;
+}
+
+.quiz pre {
+    margin: 0;
+    padding: 0;
+}
+
+fieldset > div {
+    margin: 2px;
+}
+
+.quiz iframe {
+    border: none;
+    width: 500px;
+    height: 300px;
+}
+
+/* Target the Reveal.js container */
+
+.reveal {
+    font-family: "Courier New", Courier, monospace !important;
+    font-size: 28px !important; /* Force a smaller base size */
+}
+
+.reveal * {
+    text-align: left !important;    
+}
+
+.reveal p {
+    margin-left: var(--r-block-margin) !important;
+}
+
+/* Ensure headers also follow the fixed-width rule */
+.reveal h1, .reveal h2, .reveal h3, .reveal h4 {
+    font-family: "Courier New", Courier, monospace !important;
+    text-transform: uppercase; /* Optional: adds to the 'tech' look */
+    letter-spacing: 2px;
+}
+
+/* Make sure lists (bullets) are tight and aligned */
+.reveal ul, .reveal ol {
+    display: inline-block;
+    text-align: left;
+    font-size: 0.8em; 
+}
+
+.reveal iframe {
+    margin: var(--r-block-margin) auto;
+    width: 90%;
+    display: block;
+    border: 0;
+}
+
+/* === Python Embed Run Button Styles === */
+
+.python-embed__run {
+    appearance: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 0 8px 0;
+    padding: 0.45rem 0.85rem;
+    border: 1px solid #0f766e;
+    border-radius: 8px;
+    background: #14b8a6;
+    color: #062320;
+    font-weight: 700;
+    font-size: 0.9rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: background 120ms ease, transform 120ms ease, box-shadow 120ms ease;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+}
+
+.python-embed__run:hover {
+    background: #0ea79a;
+    transform: translateY(-1px);
+}
+
+.python-embed__run:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+.python-embed__run:focus-visible {
+    outline: 2px solid #0f766e;
+    outline-offset: 2px;
+}
+
+body[data-md-color-scheme="slate"] .python-embed__run {
+    border-color: #2dd4bf;
+    background: #0f766e;
+    color: #e6fffb;
+}

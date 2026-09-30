@@ -1,0 +1,263 @@
+
+#sandbox-container {
+    margin-top: 20px; font-family: var(--md-text-font-family, sans-serif);
+}
+
+#question {
+    margin-bottom: 12px;
+    padding: 12px 14px;
+    border-left: 4px solid #2094f3;
+    border-radius: 4px;
+    background: rgba(32, 148, 243, 0.08);
+    color: var(--md-default-fg-color, inherit);
+    font-size: 1.05rem;
+    line-height: 1.5;
+    font-weight: 500;
+}
+
+#question strong {
+    font-weight: 800;
+    color: inherit;
+}
+
+#question:empty {
+    display: none;
+}
+
+#input {
+    display: block; width: 100%; min-height: 80px; box-sizing: border-box;
+    padding: 12px; margin-bottom: 12px; border: 1px solid #b9b9b9;
+    border-radius: 4px; overflow-y: auto; white-space: pre-wrap;
+}
+
+#input:empty::before {
+    content: attr(data-placeholder); color: #8a8a8a;
+}
+
+#controls {
+    display: flex; gap: 8px; margin-bottom: 12px;
+}
+
+#panes { display: grid; grid-template-columns: 1fr; gap: 12px; align-items: start; }
+
+#output, #python-output {
+    min-width: 0;
+    max-height: 70vh;
+    overflow: auto;
+}
+
+#python-output-text {
+    height: 10px;
+    overflow: auto;    
+}
+
+// .code-block { margin: 8px 0; position: relative; }
+
+.run-btn {
+    margin-top: 4px;
+    padding: 4px 14px;
+    cursor: pointer;
+    background: #2094f3;
+    color: white;
+    border: none;
+    border-radius: 4px;
+}
+
+#python-output { display: none; background: #1e1e1e; padding: 8px; border-radius: 4px; }
+
+#skulpt-turtle-target { width: 100%; height: 400px; background: white; margin-bottom: 8px; }
+
+#history-modal {
+    position: fixed; inset: 0; z-index: 1000; display: flex;
+    align-items: center; justify-content: center; background: rgba(0,0,0,0.5);
+}
+
+#history-modal-card { 
+    width: 90%; max-width: 800px; background: var(--md-default-bg-color, white); padding: 20px; 
+    border-radius: 8px; display: flex; flex-direction: column; max-height: 80vh;
+    color: var(--md-default-fg-color, #1f2937);
+    border: 1px solid rgba(127, 127, 127, 0.18);
+    box-shadow: 0 18px 60px rgba(0, 0, 0, 0.22);
+}
+
+#history-modal-card h3 {
+    color: inherit;
+    margin-top: 0;
+}
+
+#history-json {
+    flex: 1;
+    overflow: auto;
+    background: var(--md-code-bg-color, rgba(127, 127, 127, 0.08));
+    color: inherit;
+    padding: 10px;
+    font-size: 12px;
+    border: 1px solid rgba(127, 127, 127, 0.22);
+    border-radius: 4px;
+}
+
+#history-modal-card button {
+    appearance: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    padding: 0.45rem 0.85rem;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    background: var(--md-primary-fg-color, #2094f3);
+    color: var(--md-primary-bg-color, #ffffff);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.12s ease, opacity 0.12s ease, box-shadow 0.12s ease;
+}
+
+#history-modal-card button:hover {
+    opacity: 0.92;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.14);
+}
+
+#history-modal-card button:active {
+    transform: translateY(1px);
+}
+
+#history-modal-card button:focus-visible {
+    outline: 2px solid var(--md-primary-fg-color, #2094f3);
+    outline-offset: 2px;
+}
+
+[data-md-color-scheme="slate"] #history-modal-card {
+    box-shadow: 0 18px 60px rgba(0, 0, 0, 0.55);
+    border-color: rgba(255, 255, 255, 0.12);
+}
+
+[data-md-color-scheme="slate"] #history-json {
+    border-color: rgba(255, 255, 255, 0.12);
+}
+
+
+
+/* ============================================================
+   HLJS + MATERIAL MKDOCS INTEGRATION
+   Handles: Margins, Line Numbers, and Dark Mode Switching
+   ============================================================ */
+
+/* 1. Reset MkDocs Material defaults for code blocks */
+.md-typeset pre > code {
+    padding: 0;
+    background-color: transparent;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* 2. Base HLJS Container Style */
+pre code.hljs {
+    display: block;
+    padding: 1.2em !important;
+    border-radius: 4px;
+    line-height: 1.6;
+    background: transparent !important; /* Managed by 'pre' wrapper */
+    text-shadow: none !important;        /* Kills the "strange font border" */
+}
+
+/* 3. Global Text/Font Fixes */
+.hljs, .hljs-subst, .hljs * {
+    text-shadow: none !important;
+    border: none !important;
+}
+
+/* 4. Line Numbers (Plugin) Layout */
+
+.hljs-ln td {
+    border: none !important;
+}
+
+.hljs-ln {
+    border-collapse: collapse !important;
+    width: auto !important; /* Table only as wide as the content */
+}
+
+.hljs-ln-n {
+    /* 1. Remove the fixed width that caused the overlap */
+    width: auto !important;
+    min-width: 1.5em; /* Ensures space for at least 2 digits */
+    
+    /* 2. Position the numbers */
+    text-align: right !important;
+    padding-right: 10px !important; /* This is the gap to the vertical line */
+    
+    /* 3. The Vertical Line */
+    border-right: 1px solid rgba(128, 128, 128, 0.2) !important;
+    
+    /* 4. Cleanup */
+    white-space: nowrap !important;
+    user-select: none;
+    color: #6e7681;
+}
+
+.hljs-ln-code {
+    /* This is the gap from the vertical line to the start of the code */
+    padding-left: 10px !important; 
+    white-space: pre !important;
+}
+
+/* ============================================================
+   COLOR SCHEME SWITCHING
+   ============================================================ */
+
+/* LIGHT MODE (Default) */
+/*
+[data-md-color-scheme="default"] pre {
+    background-color: #f8f9fb; 	 
+    border: 1px solid #e1e1e1;
+}
+[data-md-color-scheme="default"] .hljs-ln-n {
+    border-right: 1px solid rgba(0, 0, 0, 0.1) !important;
+}
+
+
+[data-md-color-scheme="slate"] pre {
+    background-color: #1e2124; 
+    border: 1px solid #30343e;
+}
+
+[data-md-color-scheme="slate"] .hljs-ln-n {
+    color: #5c6370 !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+[data-md-color-scheme="slate"] .hljs-ln-code {
+    color: #d8dee9; 
+}
+*/
+
+pre {
+    background-color: #1e2124; 
+    border: 1px solid #30343e;
+}
+
+.hljs-ln-n {
+    color: #5c6370 !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.hljs-ln-code {
+    color: #d8dee9; 
+}
+
+
+/* ============================================================
+   OPTIONAL: SCROLLBAR STYLING (For that clean look)
+   ============================================================ */
+pre code.hljs::-webkit-scrollbar {
+    height: 4px;
+}
+pre code.hljs::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+}
+[data-md-color-scheme="slate"] pre code.hljs::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+}
+

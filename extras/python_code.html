@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Skulpt Runner with Image Support</title>
+  <script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt-stdlib.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@5.3.0/css/xterm.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/xterm@5.3.0/lib/xterm.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit@0.8.0/lib/xterm-addon-fit.min.js"></script>  
+  <style>
+    body {
+      padding: 0;
+      margin: 0;
+      font-family: sans-serif;
+      background: #111;
+    }
+
+    #canvas {
+      background: white;
+      display: block;
+    }
+
+    #terminal {
+      background: #111;
+      color: #0f0;
+      padding: 0;
+      margin-top: 0;
+      min-height: 20px;
+      display: none;
+    }
+
+    #refresh-button {
+      position: fixed;
+      top: 12px;
+      right: 12px;
+      z-index: 1000;
+      border: 0;
+      border-radius: 999px;
+      padding: 10px 14px;
+      background: rgba(20, 20, 20, 0.9);
+      color: #fff;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+      display: none;
+    }
+
+    #refresh-button:hover {
+      background: rgba(40, 40, 40, 0.95);
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- This div will hold the Turtle canvas and the Images -->
+  <button id="refresh-button" type="button">Redraw</button>
+  <div id="thinking"></div>
+  <div id="canvas"></div>
+  <div id="output"></div>
+  <div id="terminal"></div>
+  <div id="code" style="display:none;"></div>
+
+
+  <script type="module">
+    const PYTHON_CODE_GRADING_EVENT = "python-code-grading";
+
+    import { SentimentIntensityAnalyzer } from 'https://esm.sh/vader-sentiment';
+    window.SentimentIntensityAnalyzer = SentimentIntensityAnalyzer;
+
+    import injectDataFiles from './js/python-code-inject-data-files.js';
+
+    let currentCode = "";
+    let terminal = null;
+    let fitAddon = null;
+    let activeInputDisposable = null;
+    let terminalVisible = false;    
+
+    function emitGradingEvent(detail) {
+      if (typeof window === 'undefined') return;
+
+      const payload = detail || {};
+
+      console.log("Emitting grading event with detail:", payload);
+      if (typeof window.dispatchEvent === 'function') {
+        window.dispatchEvent(new CustomEvent(PYTHON_CODE_GRADING_EVENT, { detail: payload }));
+      }
+
+      if (window.parent && window.parent !== window && typeof window.parent.postMessage === 'function') {
+        payload.eventType = PYTHON_CODE_GRADING_EVENT;
+        console.log("Attempting to post message to parent window:", payload);
+        window.parent.postMessage(payload, '*');
+      }
+    }
+
+
+
+    function getTerminalElement() {
+      return document.getElementById("terminal");
+    }
+
+    function showTerminal() {
+      const terminalElement = getTerminalElement();
+
+      if (!terminalElement) {
+        return;
+      }
+
+      if (!terminalVisible) {
+        terminalElement.style.display = "block";
+        terminalVisible = true;
+      }
+
+      initTerminal();
+      resizeTerminalToIframe();
+    }
+
+    function hideTerminal() {
+      const terminalElement = getTerminalElement();
+
+      if (!terminalElement) {
+        return;
+      }
+
+      terminalElement.style.display = "none";
+      terminalVisible = false;
+    }
+
+    function resizeTerminalToIframe() {
+      const terminalElement = getTerminalElement();
+
+      if (!terminalElement) {
+        return;
+      }
+
+      // Keep a small bottom gutter so the terminal does not touch iframe edges.
+      const gutter = 8;
+      const rect = terminalElement.getBoundingClientRect();
+      const height = Math.max(120, Math.floor(window.innerHeight - rect.top - gutter));
+
+      terminalElement.style.height = height + "px";
+
+      if (fitAddon) {
+        fitAddon.fit();
+      }
+    }
+
+    function handleWindowResize() {
+      if (!terminalVisible) {
+        return;
+      }
+
+      resizeTerminalToIframe();
+    }
+
+    function hasTurtleImport(code) {
+      return /(?:^|\n)\s*(?:import\s+turtle\b|from\s+turtle\s+import\b)/m.test(code);
+    }
+
+    function hasCanvasImport(code) {
+      const hasTurtle = hasTurtleImport(code);
+      const hasImage = /(?:^|\n)\s*(?:import\s+image\b|from\s+image\s+import\b)/m.test(code);
+
+      return hasTurtle || hasImage;
+    }
+
+    function hasChatImport(code) {
+      return /(?:^|\n)\s*(?:import\s+chat\b|from\s+chat\s+import\b)/m.test(code);
+    }
+
+    function hasAudioImport(code) {
+      return /(?:^|\n)\s*(?:import\s+audio\b|from\s+audio\s+import\b)/m.test(code);
+    }    
+
+    // Load the custom module sources into memory so they can be served synchronously when Skulpt requests them
+    const moduleCache = { chat: "", audio: "", testcase: "" };
+
+    async function loadCustomModules() {
+      try {
+        if (moduleCache.chat === '' || moduleCache.audio === '' || moduleCache.testcase === '') {
+          const [chatRes, audioRes, testcaseRes] = await Promise.all([
+            fetch('js/skulpt-chat.js'),
+            fetch('js/skulpt-audio.js'),
+            fetch('js/skulpt-testcase.py')
+          ]);
+          moduleCache.chat = await chatRes.text();
+          moduleCache.audio = await audioRes.text();
+          moduleCache.testcase = await testcaseRes.text();
+        }
+      } catch (err) {
+        console.error("Module loading failed:", err);
+      }
+    }
+
+    function resetOutput() {
+      const canvas = document.getElementById("canvas");
+      canvas.innerHTML = "";
+
+      if (terminal) {
+        terminal.clear();
+      }
+
+      if (activeInputDisposable) {
+        activeInputDisposable.dispose();
+        activeInputDisposable = null;
+      }
+    }
+
+    function initTerminal() {
+      if (terminal) {
+        return;
+      }
+
+      window.removeEventListener('resize', handleWindowResize);
+
+      terminal = new Terminal({
+        theme: { background: '#111111' },
+        convertEol: true,
+        cursorBlink: true
+      });
+
+      fitAddon = new FitAddon.FitAddon();
+      terminal.loadAddon(fitAddon);
+      terminal.open(getTerminalElement());
+      resizeTerminalToIframe();
+      requestAnimationFrame(() => {
+        resizeTerminalToIframe();
+      });
+
+      window.addEventListener('resize', handleWindowResize);
+    }
+
+    function termWrite(text) {      
+      showTerminal();
+
+      if (text === undefined || text === null) return;
+
+      const output = String(text);
+      if (output.length === 0) return;
+
+      if (!terminal) return;
+      
+      window.skulpt_stdout += output;
+      terminal.write(output);
+    }
+
+    function readLineFromTerminal(promptText) {
+      return new Promise((resolve, reject) => {
+        termWrite(promptText ?? "");
+
+        let buffer = "";
+
+        if (activeInputDisposable) {
+          activeInputDisposable.dispose();
+          activeInputDisposable = null;
+        }
+
+        const disposable = terminal.onData((data) => {
+          if (data === '\r') {
+            termWrite('\r\n');
+            disposable.dispose();
+            activeInputDisposable = null;
+            resolve(buffer);
+            return;
+          }
+
+          if (data === '\u0003') {
+            disposable.dispose();
+            activeInputDisposable = null;
+            reject(new Error('KeyboardInterrupt'));
+            return;
+          }
+
+          if (data === '\u007f') {
+            if (buffer.length > 0) {
+              buffer = buffer.slice(0, -1);
+              termWrite('\b \b');
+            }
+            return;
+          }
+
+          if (data >= ' ' && data <= '~') {
+            buffer += data;
+            termWrite(data);
+          }
+        });
+
+        activeInputDisposable = disposable;
+      });
+    }
+
+    function isChatModuleRequest(name) {
+      return name === 'chat' || name === 'chat.js' || name === 'chat.py' || name === 'src/lib/chat.js' || name === 'src/lib/chat.py';
+    }
+
+    function isAudioModuleRequest(name) {
+      return name === 'audio' || name === 'audio.js' || name === 'audio.py' || name === 'src/lib/audio.js' || name === 'src/lib/audio.py';
+    }    
+
+    function isTestcaseModuleRequest(name) {
+      return name === 'testcase.py' || name === 'src/lib/testcase.py' || name === 'src/builtin/testcase.py';
+    }
+
+    function builtinRead(x) {    
+      if (isChatModuleRequest(x)) return moduleCache.chat;      
+      if (isAudioModuleRequest(x)) return moduleCache.audio;     
+      if (isTestcaseModuleRequest(x)) return moduleCache.testcase;
+
+      if (Sk.builtinFiles === undefined || Sk.builtinFiles["files"][x] === undefined)
+        throw "File not found: '" + x + "'";
+      return Sk.builtinFiles["files"][x];      
+    }
+
+    async function runPython(code) {   
+
+      await injectDataFiles();   
+      
+      currentCode = code;
+      resetOutput();
+      hideTerminal();
+      const refreshButton = document.getElementById("refresh-button");
+      refreshButton.style.display = hasTurtleImport(code) ? "block" : "none";
+
+      await loadCustomModules();
+
+      // Hack to capture stdout in a global variable for later retrieval
+      window.skulpt_stdout = "";
+      Sk.configure({
+        output: termWrite,
+        read: builtinRead,
+        inputfunTakesPrompt: true,
+        inputfun: readLineFromTerminal,
+        __future__: Sk.python3,
+      });
+
+      if (hasCanvasImport(code)) {
+        // Turtle & Image Config
+        Sk.TurtleGraphics = {
+          target: 'canvas',
+          width: 500,
+          height: 300
+        };
+
+        Sk.canvas = 'output';
+      }
+
+      if (hasChatImport(code)) {
+        // Load the python-code-llm.js
+        // Which injects the PythonCodeLLM into window object
+        await import ('./js/python-code-llm.js');        
+      }
+
+      if (hasAudioImport(code)) {
+        // Load the python-code-audio.js
+        // Which injects the PythonCodeAudio into window object
+        await import ('./js/python-code-audio.js');        
+      } 
+
+      // --- ADDED: Track if emitGradingEvent gets called ---
+      let gradingEventEmitted = false;
+
+      Sk.builtins["emitGradingEvent"] = new Sk.builtin.func(function(detail) {
+        gradingEventEmitted = true; // Set flag to true when called from Python
+
+        const jsDetail = Sk.ffi.remapToJs(detail);
+        emitGradingEvent(jsDetail);
+
+        return Sk.builtin.none.none$;
+      });
+
+      Sk.builtins["getSentiment"] = new Sk.builtin.func(function(sentence) {    
+
+        console.log("getSentiment called with sentence:", sentence);    
+        const score = SentimentIntensityAnalyzer.polarity_scores(Sk.ffi.remapToJs(sentence));        
+        // Directly returns the global JS variable cleanly to Python
+        return Sk.ffi.remapToPy(score.compound || 0);
+      });      
+
+      Sk.builtins["jsonToDict"] = new Sk.builtin.func(function(json_string) {
+        // Directly returns the global JS variable cleanly to Python
+        return Sk.ffi.remapToPy(JSON.parse(Sk.ffi.remapToJs(json_string)));
+      });
+
+      Sk.builtins["getStdout"] = new Sk.builtin.func(function() {
+        // Directly returns the global JS variable cleanly to Python
+        return Sk.ffi.remapToPy(window.skulpt_stdout || "");
+      });
+
+      try {
+        await Sk.misceval.asyncToPromise(() =>
+          Sk.importMainWithBody("<stdin>", false, code, true)
+        );
+      } catch (e) {
+        termWrite("\r\nError: " + e.toString() + "\r\n");
+      } finally {
+        // --- ADDED: Fallback check after Skulpt finishes or crashes ---
+        if (!gradingEventEmitted) {
+          console.log("emitGradingEvent was not triggered by the script. Forcing fallback event.");
+          // remove anything after 'import unittest' in the code to avoid overwhelming the grading event with too much data, since the issue is likely that the code is crashing before it can call emitGradingEvent, and the unittest import tends to be near the end of the code in many cases
+          const unittestIndex = code.indexOf('import unittest');
+          if (unittestIndex !== -1) {
+            code = code.substring(0, unittestIndex);
+          }
+          emitGradingEvent({ code: code });
+        }
+      }
+    }
+
+    function runCodeFromHash(hash) {      
+      if (!hash) {
+        if (terminal) {
+          terminal.clear();
+        }
+        termWrite("No code provided.\r\n");
+        return;
+      }
+
+      try {
+        const decodedCode = atob(hash);
+        // Save the decoded code in a hidden div for reference or debugging purposes
+        document.getElementById("code").textContent = decodedCode;
+        runPython(decodedCode);
+      } catch (e) {
+        if (terminal) {
+          terminal.clear();
+        }
+        termWrite("Invalid code\r\n");
+      }
+    }
+
+    window.onload = () => {      
+      const refreshButton = document.getElementById("refresh-button");
+      refreshButton.onclick = () => {
+        if (currentCode) {
+          runPython(currentCode);
+        }
+      };
+
+      let hash = window.location.hash.substring(1);
+      if (hash) {
+        runCodeFromHash(hash);
+      }
+
+      window.addEventListener('hashchange', () => {
+        const nextHash = window.location.hash.substring(1);
+        runCodeFromHash(nextHash);
+      });
+    };
+  </script>
+</body>
+
+</html>
