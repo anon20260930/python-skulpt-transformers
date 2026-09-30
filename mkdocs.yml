@@ -44,7 +44,6 @@ markdown_extensions:
 
 # The structure of your site
 nav:
-  - Home: lecture-09-2.md
   - LLM Strings Lessons:     
     - Introduction: lecture-09-2.md
     - Sentiment Analysis: lecture-09-3.md
