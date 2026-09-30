@@ -1,38 +1,38 @@
-## COMP115 Learn To Code
+# Demystifying LLMs via Fundamentals-First CS1 String Manipulation
 
-Before programmers can start coding, they need to set up their environment (i.e. all the necessary programming tools, etc.).  In some cases, professional programmers will take up their first week just setting up their “development environment”!
+## System Architecture & Technical Pedagogy
 
+This module provides a **100% client-side, zero-backend interactive environment** that leverages modern browser technologies to bridge fundamental introductory programming (CS1) with state-of-the-art Generative AI architecture.
 
-Our class is all about learning to code, and we will need to setup the following before we can actually do work.
+* **Client-Side Execution Engine:** Powered by **Skulpt.js** (in-browser Python execution) and **Transformers.js** running a quantized **Qwen 3 (0.6B)** model completely inside the user's browser via WebGPU/WASM.
+* **Zero Server Overhead & Privacy-Preserving:** Students interact directly with a real language model locally. No API keys, server costs, or external network requests are required.
+* **Simplified API Wrapper:** A minimal `chat(prompt)` and `reply(prompt)` function abstracts away complex tokenization and inference boilerplate, presenting the LLM output directly as a native Python `string`.
 
-### Discord
+## Pedagogical Intent & Core Learning Objectives
 
-Join my discord server, this will be the **preferred way** to get help and communicate with myself and your fellow classmates: <a href="https://discord.gg/cMkkGeR62G" target="_blank">https://discord.gg/cMkkGeR62G</a>
+Rather than treating Large Language Models as magic black boxes or external web APIs, this curriculum positions LLM interactions as standard **string-in, string-out computations**.
 
-### Textbook
+```
+Standard CS1 String Concepts               Applied Modern AI Architecture
+────────────────────────────               ──────────────────────────────
+• String slicing & find()      ───────►   • Cleaning reasoning tokens (...)
+• Accumulator Pattern          ───────►   • Iterative validation & retry loops (AI Agents)
+• String concatenation         ───────►   • Prompt engineering & system instructions
+• Equality & membership (in)   ───────►   • Intent classification & semantic routing
 
-The textbook is free and interactive, most of the labs are done via the textbook, here’s the textbook link: <a href="https://runestone.academy/ns/books/published/capilanouniversity_thinkcspy_202620/index.html" target="_blank">https://runestone.academy/ns/books/published/capilanouniversity_thinkcspy_202620/index.html</a>
-  
-If you don’t have an account, you can login using your Capilano University user id (i.e. your capu email without the @my.capilanou.ca part)  For example, if your capu email is abc@my.capilanou.ca, then your user id is abc.  Your textbook password is your capu student number.
-  
-If you already have a textbook account, simply login and enroll yourself to my version of the textbook.  The course name is **capilanouniversity_thinkcspy_202620**.
-  
-Each week, various assignments will be posted on the textbook website.  You will need to complete these assignments by the due date.  Most assignments are automatically graded.
+```
 
-### Assignments
+### Key Pedagogical Milestones in this Unit:
 
-There are 2 types of assignments from the textbook, you can access both by following the "Assignments" link at the top of the "Table of Content".
+1. **CS1 Foundations (Traditional String Ops):** Students review string indexing, slicing, methods (`.replace()`, `.split()`), escape sequences, and the **Accumulator Pattern** for sequence processing.
+2. **Deconstructing AI Output:** Students inspect real LLM text streams, recognizing that structured outputs—such as Chain-of-Thought reasoning (`` tags)—are simply substrings that can be parsed and stripped using standard methods like `.find()` and slicing.
+3. **LLMs as Deterministic String Functions:** Students use multi-line string templates and string concatenation to craft prompts that force standard responses (e.g., returning strictly `"YES"` or `"NO"`).
+4. **Building Autonomous Agents & Routers:**
+* **Validation Loops:** Using `while` loops to retry prompts until output satisfies structural constraints (e.g., exact word counts).
+* **Semantic Routers:** Building multi-agent systems where an LLM acts as an intent classifier, routing player input to specific NPC functions (`guard`, `wizard`, `merchant`) based on standard Python `if/elif` branching logic.
 
-**Reading assignments** requires you to simply complete the reading and attempt the exercises in each of the assigned sections.
+## Why This Matters for CS Education
 
-**Lab assignments** requires you to use skills learned in each chapter to solve coding problems
-
-
-### Github
-
-There are another set of exercises called the "Challenge" exercises.  If your goal is to achieve a A or A+ in this class or you want to continue studying computer science, you will need to complete these exercises.
-
-You will need a github account <a href="https://github.com/" target="_blank">https://github.com/</a> to complete these exercises. 	
-
-**NOTE**: Use your personal email to sign up to github.  There are issues with using capu email account on github.
-
+* **Demystification over Hype:** Teaches students early in their computing journey that advanced AI features (chatbots, agents, routers) are built on foundational programming concepts: loops, conditionals, and string operations.
+* **Low-Barrier Accessibility:** Runs seamlessly on Chromebooks and low-spec hardware without requiring cloud infrastructure or paid API tiers.
+* **Active, Hands-On Learning:** In-browser embedded Python environments offer immediate feedback with built-in test suites (`unittest`) and auto-graded conceptual quizzes.
