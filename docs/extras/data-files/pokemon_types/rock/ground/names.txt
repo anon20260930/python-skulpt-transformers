@@ -1,0 +1,6 @@
+geodude
+graveler
+golem
+onix
+larvitar
+pupitar

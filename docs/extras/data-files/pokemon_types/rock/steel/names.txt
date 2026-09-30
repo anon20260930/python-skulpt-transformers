@@ -1,0 +1,4 @@
+shieldon
+bastiodon
+probopass
+stakataka

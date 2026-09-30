@@ -1,0 +1,125 @@
+site_name: CS1 Python Lecture Notes
+site_url: https://env3d-lessons.github.io/python-thinkcspy-lectures/
+site_description: A concise description of what this project does.
+
+theme:
+  name: material
+  custom_dir: overrides
+  palette: 
+    # This adds a toggle for light/dark mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode  
+  features:
+    # - navigation.tabs        # Top-level tabs
+    # - navigation.sections    # Grouped sidebar items
+    # - navigation.expand
+    # - search.suggest         # Smarter search
+    - content.code.copy      # "Copy to clipboard" button on code blocks
+
+markdown_extensions:
+  - pymdownx.highlight:
+      linenums: true
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences:  # This allows the use of ``` backticks
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+
+# The structure of your site
+nav:
+  - Introduction: index.md
+  - Chapter 1: lecture-01.md
+  - Chapter 2 & 3: lecture-02-03.md
+  - Chapter 4 & 5: lecture-04-05.md
+  - Chapter 6:
+    - Part 1: lecture-06-1.md
+    - Part 2: lecture-06-2.md  
+    - Part 3: lecture-06-3.md
+    - Exercise: lecture-06-exercise.md
+    - Part 4: lecture-06-4.md
+  - Chapter 7: lecture-07.md
+  - Chapter 8: 
+      - Part 1: lecture-08-1.md
+      - Part 2: lecture-08-2.md
+      - Part 3: lecture-08-3.md
+  - Chapter 9: 
+    - Part 1: lecture-09-1.md
+    - Part 2: lecture-09-2.md
+    - Part 3: lecture-09-3.md
+    - Part 4: lecture-09-4.md
+    - Part 5: lecture-09-5.md
+  - Challenge / Project: 
+    - Instruction: lecture-09-challenge-1.md
+    - Fix Bug: lecture-09-challenge-2.md
+    - Create Your Own Adventure: lecture-09-challenge-3.md
+  - Chapter 10: 
+    - Part 1: lecture-10-1.md
+    - Part 2: lecture-10-2.md
+    - Part 3: lecture-10-3.md
+    - Part 4: lecture-10-4.md
+    - Part 5: lecture-10-5.md
+  - Chapter 11: 
+    - Part 1: lecture-11-1.md
+    - Part 2: lecture-11-2.md
+    - Part 3: lecture-11-3.md
+    - Part 4: lecture-11-4.md
+    - Part 5: lecture-11-5.md
+    - Part 6: lecture-11-6.md
+  - Chapter 12: 
+    - Part 1: lecture-12-1.md
+    - Part 2: lecture-12-2.md
+    - Part 3: lecture-12-3.md
+    - Part 4: lecture-12-4.md
+  - LLM Sandbox: 
+    - Lecture: sandbox-instructions.md
+    - Sandbox: sandbox.md
+    
+plugins:
+  - no-sitemap
+  - search:
+      enabled: false
+  - mkdocs_quiz:
+      auto_number: true
+  - revealjs:
+      transition: slide
+      controls: true
+      history: true
+      theme:
+        light: solarized   # Reveal.js theme for light mode
+        dark: dracula      # Reveal.js theme for dark mode
+      highlight:
+        light: github      # Code highlighting for light mode
+        dark: github-dark  # Code highlighting for dark mode
+
+extra:
+  generator: false
+
+# This tells MkDocs to include your custom logic on every page
+extra_javascript:
+  - js/custom-fullscreen.js
+  - js/custom-python-embed/index.js
+  - js/custom-python-embed/render-file-tree.js
+  - js/custom-python-embed/render-code-editor.js
+  - js/quiz-custom.js
+  - js/reveal-custom.js
+
+
+extra_css:
+  - stylesheets/extra.css
