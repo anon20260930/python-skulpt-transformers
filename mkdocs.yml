@@ -1,5 +1,5 @@
-site_name: CS1 Python Lecture Notes
-site_url: https://env3d-lessons.github.io/python-thinkcspy-lectures/
+site_name: CS1 Python AI Lessons
+site_url: https://anon20260930.github.io/python-skulpt-transformers
 site_description: A concise description of what this project does.
 
 theme:
@@ -44,52 +44,15 @@ markdown_extensions:
 
 # The structure of your site
 nav:
-  - Introduction: index.md
-  - Chapter 1: lecture-01.md
-  - Chapter 2 & 3: lecture-02-03.md
-  - Chapter 4 & 5: lecture-04-05.md
-  - Chapter 6:
-    - Part 1: lecture-06-1.md
-    - Part 2: lecture-06-2.md  
-    - Part 3: lecture-06-3.md
-    - Exercise: lecture-06-exercise.md
-    - Part 4: lecture-06-4.md
-  - Chapter 7: lecture-07.md
-  - Chapter 8: 
-      - Part 1: lecture-08-1.md
-      - Part 2: lecture-08-2.md
-      - Part 3: lecture-08-3.md
-  - Chapter 9: 
-    - Part 1: lecture-09-1.md
-    - Part 2: lecture-09-2.md
-    - Part 3: lecture-09-3.md
-    - Part 4: lecture-09-4.md
-    - Part 5: lecture-09-5.md
+  - LLM Strings Lessons:     
+    - Introduction: lecture-09-2.md
+    - Sentiment Analysis: lecture-09-3.md
+    - Chatbots: lecture-09-4.md
+    - Agents: lecture-09-5.md
   - Challenge / Project: 
     - Instruction: lecture-09-challenge-1.md
     - Fix Bug: lecture-09-challenge-2.md
     - Create Your Own Adventure: lecture-09-challenge-3.md
-  - Chapter 10: 
-    - Part 1: lecture-10-1.md
-    - Part 2: lecture-10-2.md
-    - Part 3: lecture-10-3.md
-    - Part 4: lecture-10-4.md
-    - Part 5: lecture-10-5.md
-  - Chapter 11: 
-    - Part 1: lecture-11-1.md
-    - Part 2: lecture-11-2.md
-    - Part 3: lecture-11-3.md
-    - Part 4: lecture-11-4.md
-    - Part 5: lecture-11-5.md
-    - Part 6: lecture-11-6.md
-  - Chapter 12: 
-    - Part 1: lecture-12-1.md
-    - Part 2: lecture-12-2.md
-    - Part 3: lecture-12-3.md
-    - Part 4: lecture-12-4.md
-  - LLM Sandbox: 
-    - Lecture: sandbox-instructions.md
-    - Sandbox: sandbox.md
     
 plugins:
   - no-sitemap
