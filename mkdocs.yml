@@ -24,7 +24,7 @@ theme:
   features:
     # - navigation.tabs        # Top-level tabs
     # - navigation.sections    # Grouped sidebar items
-    # - navigation.expand
+    - navigation.expand
     # - search.suggest         # Smarter search
     - content.code.copy      # "Copy to clipboard" button on code blocks
 
@@ -44,6 +44,7 @@ markdown_extensions:
 
 # The structure of your site
 nav:
+  - Home: lecture-09-2.md
   - LLM Strings Lessons:     
     - Introduction: lecture-09-2.md
     - Sentiment Analysis: lecture-09-3.md
